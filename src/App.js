@@ -6,6 +6,7 @@ import './App.css';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
 
+
 const initialFormState = { name: '', description: '' }
 
 function App({ signOut }) {
