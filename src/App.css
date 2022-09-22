@@ -7,6 +7,19 @@
   pointer-events: none;
 }
 
+table {
+  width:100%;
+  border-collapse: collapse;
+  padding: 15px;
+}
+
+tr:hover {background-color: lightgray;}
+
+table, th, td {
+  border: 1px solid black;
+  padding: 5px;
+}
+
 @media (prefers-reduced-motion: no-preference) {
   .App-logo {
     animation: App-logo-spin infinite 20s linear;

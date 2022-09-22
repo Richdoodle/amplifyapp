@@ -1,13 +1,13 @@
 import { withAuthenticator } from '@aws-amplify/ui-react';
 import "@aws-amplify/ui-react/styles.css";
-import { API, Storage } from 'aws-amplify';
+import { API } from 'aws-amplify';
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { createNote as createNoteMutation, deleteNote as deleteNoteMutation } from './graphql/mutations';
 import { listNotes } from './graphql/queries';
 
 
-const initialFormState = { name: '', description: '' }
+const initialFormState = { open: '', high: '', low: '', close: ''}
 
 function App({ signOut }) {
   const [notes, setNotes] = useState([]);
@@ -16,35 +16,15 @@ function App({ signOut }) {
   useEffect(() => {
     fetchNotes();
   }, []);
-
-  async function onChange(e) {
-    if (!e.target.files[0]) return
-    const file = e.target.files[0];
-    setFormData({ ...formData, image: file.name });
-    await Storage.put(file.name, file);
-    fetchNotes();
-  }
   
   async function fetchNotes() {
     const apiData = await API.graphql({ query: listNotes });
-    const notesFromAPI = apiData.data.listNotes.items;
-    await Promise.all(notesFromAPI.map(async note => {
-      if (note.image) {
-        const image = await Storage.get(note.image);
-        note.image = image;
-      }
-      return note;
-    }))
     setNotes(apiData.data.listNotes.items);
   }
 
   async function createNote() {
-    if (!formData.name || !formData.description) return;
+    if (!formData.open || !formData.high || !formData.low || !formData.close) return;
     await API.graphql({ query: createNoteMutation, variables: { input: formData } });
-    if (formData.image) {
-      const image = await Storage.get(formData.image);
-      formData.image = image;
-    }
     setNotes([ ...notes, formData ]);
     setFormData(initialFormState);
   }
@@ -54,37 +34,63 @@ function App({ signOut }) {
     setNotes(newNotesArray);
     await API.graphql({ query: deleteNoteMutation, variables: { input: { id } }});
   }
+  
   return (
     <div className="App">
       <h1>My Notes App</h1>
-      <input
-        onChange={e => setFormData({ ...formData, 'name': e.target.value})}
-        placeholder="Note name"
-        value={formData.name}
-      />
-      <input
-        onChange={e => setFormData({ ...formData, 'description': e.target.value})}
-        placeholder="Note description"
-        value={formData.description}
-      />
-      <input
-        type="file"
-        onChange={onChange}
-      />
-      <button onClick={createNote}>Create Note</button>
       <div style={{marginBottom: 30}}>
-        {
-          notes.map(note => (
-            <div key={note.id || note.name}>
-              <h2>{note.name}</h2>
-              <p>{note.description}</p>
-              <button onClick={() => deleteNote(note)}>Delete note</button>
-              {
-                note.image && <img src={note.image} style={{width: 400}} />
-              }
-            </div>
-          ))
-        }
+        <input
+          onChange={e => setFormData({ ...formData, 'open': e.target.value})}
+          placeholder="Open"
+          value={formData.open}
+        />
+        <input
+          onChange={e => setFormData({ ...formData, 'high': e.target.value})}
+          placeholder="High"
+          value={formData.high}
+        />
+        <input
+          onChange={e => setFormData({ ...formData, 'low': e.target.value})}
+          placeholder="Low"
+          value={formData.low}
+        />
+        <input
+          onChange={e => setFormData({ ...formData, 'close': e.target.value})}
+          placeholder="Close"
+          value={formData.close}
+        />
+        <button onClick={createNote}>Create Note</button>
+      </div>
+      <div style={{marginBottom: 30}}>
+        <table>
+          <thead>
+            <tr>
+              <th>Open</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Close</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+            notes.map(note => (
+              <tr key={note.id}>
+                <td>{note.open}</td>
+                <td>{note.high}</td>
+                <td>{note.low}</td>
+                <td>{note.close}</td>
+                <td><button onClick={() => deleteNote(note)}>Delete note</button></td>
+              </tr>
+            ))
+            }
+          </tbody>
+        </table>
+      </div>
+      <div>
+      {
+        
+      }
       </div>
       <button onClick={signOut}>Sign Out</button>
     </div>

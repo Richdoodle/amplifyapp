@@ -5,11 +5,15 @@ export const getNote = /* GraphQL */ `
   query GetNote($id: ID!) {
     getNote(id: $id) {
       id
-      name
-      description
-      image
+      open
+      high
+      low
+      close
       createdAt
       updatedAt
+      _version
+      _deleted
+      _lastChangedAt
     }
   }
 `;
@@ -22,13 +26,48 @@ export const listNotes = /* GraphQL */ `
     listNotes(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        name
-        description
-        image
+        open
+        high
+        low
+        close
         createdAt
         updatedAt
+        _version
+        _deleted
+        _lastChangedAt
       }
       nextToken
+      startedAt
+    }
+  }
+`;
+export const syncNotes = /* GraphQL */ `
+  query SyncNotes(
+    $filter: ModelNoteFilterInput
+    $limit: Int
+    $nextToken: String
+    $lastSync: AWSTimestamp
+  ) {
+    syncNotes(
+      filter: $filter
+      limit: $limit
+      nextToken: $nextToken
+      lastSync: $lastSync
+    ) {
+      items {
+        id
+        open
+        high
+        low
+        close
+        createdAt
+        updatedAt
+        _version
+        _deleted
+        _lastChangedAt
+      }
+      nextToken
+      startedAt
     }
   }
 `;
