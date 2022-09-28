@@ -5,10 +5,8 @@ export const getNote = /* GraphQL */ `
   query GetNote($id: ID!) {
     getNote(id: $id) {
       id
-      open
-      high
-      low
-      close
+      name
+      description
       createdAt
       updatedAt
       _version
@@ -26,10 +24,8 @@ export const listNotes = /* GraphQL */ `
     listNotes(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
         id
-        open
-        high
-        low
-        close
+        name
+        description
         createdAt
         updatedAt
         _version
@@ -56,10 +52,8 @@ export const syncNotes = /* GraphQL */ `
     ) {
       items {
         id
-        open
-        high
-        low
-        close
+        name
+        description
         createdAt
         updatedAt
         _version
