@@ -1,6 +1,7 @@
 type Note @model @auth(rules: [{allow: public}]) {
   id: ID!
-  name: String!
-  description: String
-}
- 
+  open: Int
+  high: Int
+  low: Int
+  close: Int
+} 
