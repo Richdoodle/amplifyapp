@@ -13,28 +13,28 @@ export const schema = {
                 "open": {
                     "name": "open",
                     "isArray": false,
-                    "type": "Int",
+                    "type": "Float",
                     "isRequired": false,
                     "attributes": []
                 },
                 "high": {
                     "name": "high",
                     "isArray": false,
-                    "type": "Int",
+                    "type": "Float",
                     "isRequired": false,
                     "attributes": []
                 },
                 "low": {
                     "name": "low",
                     "isArray": false,
-                    "type": "Int",
+                    "type": "Float",
                     "isRequired": false,
                     "attributes": []
                 },
                 "close": {
                     "name": "close",
                     "isArray": false,
-                    "type": "Int",
+                    "type": "Float",
                     "isRequired": false,
                     "attributes": []
                 },
@@ -83,5 +83,5 @@ export const schema = {
     },
     "enums": {},
     "nonModels": {},
-    "version": "828effdf6f27960df3407afe2201b7de"
+    "version": "8cf306e5d1e7c02af6225ef779b39653"
 };

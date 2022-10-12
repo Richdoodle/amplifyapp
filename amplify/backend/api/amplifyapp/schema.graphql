@@ -1,7 +1,7 @@
 type Note @model @auth(rules: [{allow: public}]) {
   id: ID!
-  open: Int
-  high: Int
-  low: Int
-  close: Int
+  open: Float
+  high: Float
+  low: Float
+  close: Float
 } 

@@ -17,6 +17,8 @@ import {
 } from "@aws-amplify/ui-react";
 import { DataStore } from '@aws-amplify/datastore';
 import { Note } from './models';
+import { API } from 'aws-amplify';
+
 
 
 const App = ({ signOut }) => {
@@ -36,10 +38,10 @@ const App = ({ signOut }) => {
     const form = new FormData(event.target);
     await DataStore.save(
       new Note({
-        open: parseInt(form.get("open")),
-        high: parseInt(form.get("high")),
-        low: parseInt(form.get("low")),
-        close: parseInt(form.get("close"))
+        open: parseFloat(form.get("open")),
+        high: parseFloat(form.get("high")),
+        low: parseFloat(form.get("low")),
+        close: parseFloat(form.get("close"))
       })
     );
     fetchNotes();
@@ -53,7 +55,6 @@ const App = ({ signOut }) => {
     DataStore.delete(modelToDelete);
   }
 
-  
   return (
     <View className="App">
       <Heading level={1}>My Notes App</Heading>
