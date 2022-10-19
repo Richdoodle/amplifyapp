@@ -19,10 +19,13 @@ import { DataStore } from '@aws-amplify/datastore';
 import { Note } from './models';
 import { API } from 'aws-amplify';
 
-
-
 const App = ({ signOut }) => {
   const [notes, setNotes] = useState([]);
+
+  const subscription = DataStore.observe(Note).subscribe(msg => {
+    console.log(msg.model, msg.opType, msg.element);
+    fetchNotes();
+  });
 
   useEffect(() => {
     fetchNotes();
