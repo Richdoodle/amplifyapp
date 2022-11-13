@@ -12,6 +12,7 @@ frontend:
         - npm ci
     build:
       commands:
+        - npm install apexcharts --save
         - npm run build
   artifacts:
     baseDirectory: build

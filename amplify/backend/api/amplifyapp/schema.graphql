@@ -1,7 +1,22 @@
+type Trades @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  ticker: String
+  action: String
+  quantity: Int
+  fill: Float
+}
+
+type Portfolio @model @auth(rules: [{allow: public}]) {
+  id: ID!
+  balance: Float
+  dailyProfit: Float
+}
+
 type Note @model @auth(rules: [{allow: public}]) {
   id: ID!
   open: Float
   high: Float
   low: Float
   close: Float
-} 
+}
+ 
