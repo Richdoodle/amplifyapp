@@ -51,7 +51,7 @@ const App = ({ signOut }) => {
   }
   
   var chart = new ApexCharts(document.querySelector("#chart"), options);
-  chart.render();
+  chart.render().then(() => chart.isRendered = true);
 
   const [notes, setNotes] = useState([]);
   const [trades, setTrades] = useState([]);
@@ -63,16 +63,14 @@ const App = ({ signOut }) => {
     fetchTrades();
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
-      if (msg.opType !== 'UPDATE'){
+      if (msg.opType === 'INSERT'){
         fetchNotes();
-        if (msg.opType === 'INSERT'){
-          const size = 10
-          DataStore.query(Note).then((notes) => {
-            if (notes.length > size){
-              deleteExtra(notes, size)
-            }
-          });
-        }
+        const size = 10
+        DataStore.query(Note).then((notes) => {
+          if (notes.length > size){
+            deleteExtra(notes, size);
+          }
+        });
       }
     });
 
@@ -169,7 +167,7 @@ const App = ({ signOut }) => {
     }
   }
 
-  async function deleteNote( id ) {
+  async function deleteNote({ id }) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
@@ -177,18 +175,18 @@ const App = ({ signOut }) => {
     return await DataStore.query(Note)
   }
 
-  const models = DataStore.query(Note).then((notes) => {
-    if (notes.length > 0){
-      updateChart(notes);
-    }
-  });
-
   async function deleteTrade( id ) {
     const newTrades = trades.filter((trade) => trade.id !== id);
     setTrades(newTrades);
     const tradeToDelete = await DataStore.query(Trades, id);
     DataStore.delete(tradeToDelete);
   }
+
+  DataStore.query(Note).then((notes) => {
+    if (chart.isRendered){
+      updateChart(notes);
+    }
+  });
 
   return (
     <View className="App">
