@@ -214,7 +214,7 @@ const App = ({ signOut }) => {
                     <TableCell>{trade.fill}</TableCell>
                     <TableCell>{trade.quantity}</TableCell>
                   </TableRow>
-                ))}
+                )).reverse()}
               </TableBody>
             </Table>
           </View>
