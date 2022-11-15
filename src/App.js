@@ -18,53 +18,41 @@ import {
 } from "@aws-amplify/ui-react";
 import { DataStore } from '@aws-amplify/datastore';
 import { Note, Trades, Portfolio } from './models';
-import { API } from 'aws-amplify';
-import ApexCharts from "apexcharts";
+import { API, Hub } from 'aws-amplify';
+import ChartViewer from "./ChartViewer";
 
 const App = ({ signOut }) => {
-  var options = {
-    chart: {
-      type: 'candlestick',
-      height: '60%',
-      width: '99%'
-    },
-    xaxis: {
-      type: 'datetime'
-    },
-    yaxis: {
-      tooltip: {
-        enabled: true
-      }
-    },
-    series: [{
-      data: []
-    }],
-    dataLabels: {
-      enabled: false
-    },
-    title: {
-      text: 'Data Chart',
-    },
-    noData: {
-      text: 'No Data'
-    }
-  }
-  
-  var chart = new ApexCharts(document.querySelector("#chart"), options);
-  chart.render().then(() => chart.isRendered = true);
-
   const [notes, setNotes] = useState([]);
   const [trades, setTrades] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
+  const [chartData, setChartData] = useState([]);
+
+  async function updateData(){
+    var chartData = [];
+    const data = await DataStore.query(Note);
+    if (data.length > 0){
+      data.forEach(function(value){
+        chartData.push({
+          x: new Date(value.updatedAt),
+          y: [value.open, value.high, value.low, value.close]
+        })
+      });
+    } else {
+      chartData = [];
+    }
+    setChartData(chartData);
+  }
 
   useEffect(() => {
     fetchNotes();
     fetchPortfolio();
     fetchTrades();
+    updateData();
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
+        updateData();
         const size = 10
         DataStore.query(Note).then((notes) => {
           if (notes.length > size){
@@ -127,40 +115,6 @@ const App = ({ signOut }) => {
     setPortfolio(models);
   }
 
-  function updateChart(models){
-    //console.log("update chart", models)
-    var chartData = [];
-    if (models.length > 0){
-      models.forEach(function(value){
-        chartData.push({
-          x: new Date(value.updatedAt),
-          y: [value.open, value.high, value.low, value.close]
-        })
-      });
-      //console.log(chartData);
-    } else {
-      chartData = [];
-    }
-    //console.log("update", chartData)
-    chart.updateSeries([{
-      data: chartData
-    }])
-  }
-
-  async function createNoteForm(event) {
-    event.preventDefault();
-    const form = new FormData(event.target);
-    await DataStore.save(
-      new Note({
-        open: parseFloat(form.get("open")),
-        high: parseFloat(form.get("high")),
-        low: parseFloat(form.get("low")),
-        close: parseFloat(form.get("close"))
-      })
-    );
-    event.target.reset();
-  }
-
   async function deleteExtra(notes, size){
     while (notes.length > size){
       notes = await deleteNote(notes[0])
@@ -181,19 +135,13 @@ const App = ({ signOut }) => {
     const tradeToDelete = await DataStore.query(Trades, id);
     DataStore.delete(tradeToDelete);
   }
-
-  DataStore.query(Note).then((notes) => {
-    if (chart.isRendered){
-      updateChart(notes);
-    }
-  });
-
+  
   return (
     <View className="App">
       <Flex direction="column" alignItems="center" border="5px solid black" minHeight="100vh" maxHeight="100vh">
         <Heading level={3}>Trader App</Heading>
-        <View id="chart" width="98%" border="2px solid black">
-          {}
+        <View width="98%" height="60vh" border="2px solid black">
+          <ChartViewer data={chartData} />
         </View>
         <Flex as="div" direction="row" border="2px solid black" width="98%" height="25vh">
           <View className='tableContainer'>
@@ -230,8 +178,8 @@ const App = ({ signOut }) => {
               <TableBody>
                 {portfolio.map((portfolio) => (
                   <TableRow key={portfolio.id}>
-                    <TableCell>{portfolio.balance}</TableCell>
-                    <TableCell>{portfolio.dailyProfit}</TableCell>
+                    <TableCell>{Math.floor(portfolio.balance * 100) / 100}</TableCell>
+                    <TableCell>{Math.floor(portfolio.dailyProfit * 100) / 100}</TableCell>
                   </TableRow>
                 ))}
               </TableBody>
