@@ -16,9 +16,8 @@ import {
   View,
   withAuthenticator,
 } from "@aws-amplify/ui-react";
-import { DataStore } from '@aws-amplify/datastore';
 import { Note, Trades, Portfolio } from './models';
-import { API, Hub } from 'aws-amplify';
+import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
 import ChartViewer from "./ChartViewer";
 
 const App = ({ signOut }) => {
@@ -27,13 +26,18 @@ const App = ({ signOut }) => {
   const [portfolio, setPortfolio] = useState([]);
   const [chartData, setChartData] = useState([]);
 
-  async function updateData(){
+  async function updateData(size){
     var chartData = [];
-    const data = await DataStore.query(Note);
+    const data = await DataStore.query(Note, Predicates.All, {
+      page: 0,
+      limit: size,
+      sort: s => s.dateTime(SortDirection.ASCENDING)
+    });
+
     if (data.length > 0){
       data.forEach(function(value){
         chartData.push({
-          x: new Date(value.updatedAt),
+          x: new Date(value.dateTime),
           y: [value.open, value.high, value.low, value.close]
         })
       });
@@ -44,17 +48,20 @@ const App = ({ signOut }) => {
   }
 
   useEffect(() => {
+    
+    const size = 20
     fetchNotes();
     fetchPortfolio();
     fetchTrades();
-    updateData();
+    updateData(size);
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
-        updateData();
-        const size = 10
-        DataStore.query(Note).then((notes) => {
+        updateData(size);
+        DataStore.query(Note, Predicates.ALL, {
+          sort: s => s.dateTime(SortDirection.ASCENDING)
+        }).then((notes) => {
           if (notes.length > size){
             deleteExtra(notes, size);
           }
@@ -106,7 +113,9 @@ const App = ({ signOut }) => {
   }
 
   async function fetchTrades() {
-    const models = await DataStore.query(Trades);
+    const models = await DataStore.query(Trades, Predicates.ALL, {
+      sort: s => s.dateTime(SortDirection.ASCENDING)
+    });
     setTrades(models);
   }
 
@@ -136,6 +145,11 @@ const App = ({ signOut }) => {
     DataStore.delete(tradeToDelete);
   }
   
+  function getTime(PreDate){
+    const date = new Date(PreDate).toLocaleTimeString();
+    return(date);
+  }
+
   return (
     <View className="App">
       <Flex direction="column" alignItems="center" border="5px solid black" minHeight="100vh" maxHeight="100vh">
@@ -148,6 +162,7 @@ const App = ({ signOut }) => {
             <Table highlightOnHover={true} variation="striped" size="small">
               <TableHead>
                 <TableRow>
+                <TableCell as="th">Time</TableCell>
                   <TableCell as="th">Ticker</TableCell>
                   <TableCell as="th">Action</TableCell>
                   <TableCell as="th">Fill</TableCell>
@@ -157,9 +172,10 @@ const App = ({ signOut }) => {
               <TableBody>
                 {trades.map((trade) => (
                   <TableRow key={trade.id}>
+                    <TableCell>{getTime(trade.dateTime)}</TableCell>
                     <TableCell>{trade.ticker}</TableCell>
                     <TableCell>{trade.action}</TableCell>
-                    <TableCell>{trade.fill}</TableCell>
+                    <TableCell>{Math.floor(trade.fill * 100) / 100}</TableCell>
                     <TableCell>{trade.quantity}</TableCell>
                   </TableRow>
                 )).reverse()}

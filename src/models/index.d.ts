@@ -18,6 +18,7 @@ export declare class Trades {
   readonly action?: string | null;
   readonly quantity?: number | null;
   readonly fill?: number | null;
+  readonly dateTime?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Trades, TradesMetaData>);
@@ -40,6 +41,7 @@ export declare class Note {
   readonly high?: number | null;
   readonly low?: number | null;
   readonly close?: number | null;
+  readonly dateTime?: string | null;
   readonly createdAt?: string | null;
   readonly updatedAt?: string | null;
   constructor(init: ModelInit<Note, NoteMetaData>);
