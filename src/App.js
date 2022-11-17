@@ -19,46 +19,26 @@ import {
 import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
 import ChartViewer from "./ChartViewer";
+import Chart from "react-apexcharts";
 
 const App = ({ signOut }) => {
   const [notes, setNotes] = useState([]);
   const [trades, setTrades] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
   const [chartData, setChartData] = useState([]);
-
-  async function updateData(size){
-    var chartData = [];
-    const data = await DataStore.query(Note, Predicates.All, {
-      page: 0,
-      limit: size,
-      sort: s => s.dateTime(SortDirection.ASCENDING)
-    });
-
-    if (data.length > 0){
-      data.forEach(function(value){
-        chartData.push({
-          x: new Date(value.dateTime),
-          y: [value.open, value.high, value.low, value.close]
-        })
-      });
-    } else {
-      chartData = [];
-    }
-    setChartData(chartData);
-  }
+  const [tradeChartData, setTradeChartData] = useState([]);
 
   useEffect(() => {
-    
     const size = 20
     fetchNotes();
     fetchPortfolio();
     fetchTrades();
     updateData(size);
+    updateTradeChartData();
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
-        updateData(size);
         DataStore.query(Note, Predicates.ALL, {
           sort: s => s.dateTime(SortDirection.ASCENDING)
         }).then((notes) => {
@@ -66,12 +46,15 @@ const App = ({ signOut }) => {
             deleteExtra(notes, size);
           }
         });
+        
       }
+      updateData(size);
     });
 
     const tradeSubscription = DataStore.observe(Trades).subscribe(msg => {
       if (msg.opType === 'INSERT'){
         fetchTrades();
+        updateTradeChartData();
       }
     })
 
@@ -106,6 +89,75 @@ const App = ({ signOut }) => {
       portfolioSubscription.unsubscribe();
     };
   }, []);
+
+  async function updateData(size){
+    var chartData = [];
+    const data = await DataStore.query(Note, Predicates.ALL, {
+      page: 0,
+      limit: size,
+      sort: s => s.dateTime(SortDirection.ASCENDING)
+    });
+
+    if (data.length > 0){
+      data.forEach(function(value){
+        chartData.push({
+          x: new Date(value.dateTime),
+          y: [value.open, value.high, value.low, value.close]
+        })
+      });
+    } else {
+      chartData = [];
+    }
+    setChartData(chartData);
+  }
+
+  async function updateTradeChartData(){
+    var chartData = [];
+    const data = await DataStore.query(Trades, Predicates.ALL, {
+      sort: s => s.dateTime(SortDirection.ASCENDING)
+    });
+
+    if (data.length > 0){
+      data.forEach(function(value){
+        if (value.action === "BOT" || value.action === "BUY"){
+          chartData.push({
+            x: new Date(value.dateTime).getTime(),
+            borderColor: '#00E396',
+            label: {
+              borderColor: '#00E396',
+              style: {
+                fontSize: '12px',
+                color: '#fff',
+                background: '#00E396'
+              },
+              orientation: 'horizontal',
+              offsetY: 7,
+              text: String(value.action) + " " + String(value.quantity) + "@" + String(Math.floor(value.fill * 100) / 100)
+            }
+          },)
+        } else {
+          chartData.push({
+            x: new Date(value.dateTime).getTime(),
+            borderColor: '#e30035',
+            label: {
+              borderColor: '#e30035',
+              style: {
+                fontSize: '12px',
+                color: '#fff',
+                background: '#e30035'
+              },
+              orientation: 'horizontal',
+              offsetY: 7,
+              text: String(value.action) + " " + String(value.quantity) + "@" + String(Math.floor(value.fill * 100) / 100)
+            }
+          },)
+        }
+      });
+    } else {
+      chartData = [];
+    }
+    setTradeChartData(chartData);
+  }
 
   async function fetchNotes() {
     const models = await DataStore.query(Note);
@@ -146,8 +198,7 @@ const App = ({ signOut }) => {
   }
   
   function getTime(PreDate){
-    const date = new Date(PreDate).toLocaleTimeString();
-    return(date);
+    return((String(PreDate).split('T')).at(1).replace('Z', ''));
   }
 
   return (
@@ -155,7 +206,7 @@ const App = ({ signOut }) => {
       <Flex direction="column" alignItems="center" border="5px solid black" minHeight="100vh" maxHeight="100vh">
         <Heading level={3}>Trader App</Heading>
         <View width="98%" height="60vh" border="2px solid black">
-          <ChartViewer data={chartData} />
+          <ChartViewer bars={chartData} xaxis={tradeChartData} />
         </View>
         <Flex as="div" direction="row" border="2px solid black" width="98%" height="25vh">
           <View className='tableContainer'>
