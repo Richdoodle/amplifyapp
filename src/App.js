@@ -19,7 +19,6 @@ import {
 import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
 import ChartViewer from "./ChartViewer";
-import Chart from "react-apexcharts";
 
 const App = ({ signOut }) => {
   const [notes, setNotes] = useState([]);
@@ -100,8 +99,9 @@ const App = ({ signOut }) => {
 
     if (data.length > 0){
       data.forEach(function(value){
+        var y = new Date(value.dateTime).setHours(new Date(value.dateTime).getHours() + 8)
         chartData.push({
-          x: new Date(value.dateTime),
+          x: new Date(y),
           y: [value.open, value.high, value.low, value.close]
         })
       });
@@ -198,7 +198,7 @@ const App = ({ signOut }) => {
   }
   
   function getTime(PreDate){
-    return((String(PreDate).split('T')).at(1).replace('Z', ''));
+    return(new Date(PreDate).toLocaleTimeString());
   }
 
   return (

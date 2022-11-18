@@ -24,8 +24,7 @@ export default function ApexChart(props) {
             tooltip: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    var date = new Date(val).toISOString();
-                    return ((String(date).split('T')).at(1).replace(':00.000Z', ''));
+                    return (new Date(val).toLocaleTimeString());
                 }
             }
         },
