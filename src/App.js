@@ -72,6 +72,16 @@ const App = ({ signOut }) => {
       })
     })
 
+    DataStore.query(Portfolio).then((portfolio) => {
+      const today = new Date();
+      portfolio.forEach((element) => {
+        let date = new Date(element.updatedAt);
+        if (date.getDate() !== today.getDate()) {
+          updatePortfolio(element.id);
+        }
+      })
+    })
+
     DataStore.query(Note).then((notes) => {
       const today = new Date();
       notes.forEach((element) => {
@@ -99,7 +109,7 @@ const App = ({ signOut }) => {
 
     if (data.length > 0){
       data.forEach(function(value){
-        var y = new Date(value.dateTime).setHours(new Date(value.dateTime).getHours() + 8)
+        var y = new Date(value.dateTime).getTime();
         chartData.push({
           x: new Date(y),
           y: [value.open, value.high, value.low, value.close]
@@ -182,7 +192,7 @@ const App = ({ signOut }) => {
     }
   }
 
-  async function deleteNote({ id }) {
+  async function deleteNote( id ) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
@@ -195,6 +205,15 @@ const App = ({ signOut }) => {
     setTrades(newTrades);
     const tradeToDelete = await DataStore.query(Trades, id);
     DataStore.delete(tradeToDelete);
+  }
+
+  async function updatePortfolio( id ) {
+    const origional = await DataStore.query(Portfolio, id);
+    await DataStore.save(
+      Portfolio.copyOf(origional, updated => {
+        updated.dailyProfit = 0
+      })
+    );
   }
   
   function getTime(PreDate){

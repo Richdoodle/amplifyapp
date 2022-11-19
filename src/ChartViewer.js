@@ -24,7 +24,8 @@ export default function ApexChart(props) {
             tooltip: {
                 enabled: true,
                 formatter: function(val, opts) {
-                    return (new Date(val).toLocaleTimeString());
+                    var date = new Date(val).setHours((new Date(val).getHours()) + 8)
+                    return (new Date(date).toLocaleTimeString());
                 }
             }
         },
