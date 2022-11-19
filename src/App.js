@@ -20,7 +20,7 @@ import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
 import ChartViewer from "./ChartViewer";
 
-const App = ({ signOut }) => {
+const App = () => {
   const [notes, setNotes] = useState([]);
   const [trades, setTrades] = useState([]);
   const [portfolio, setPortfolio] = useState([]);
@@ -272,55 +272,9 @@ const App = ({ signOut }) => {
             </Table>
           </View>
         </Flex>
-
-        {/*
-        <Divider size="large" orientation="horizontal" />
-        <View as="form" margin="3rem 0" onSubmit={createNoteForm}>
-          <Flex direction="row" justifyContent="center">
-            <TextField
-              name="open"
-              placeholder="Open"
-              label="open"
-              labelHidden
-              variation="quiet"
-              required
-            />
-            <TextField
-              name="high"
-              placeholder="High"
-              label="high"
-              labelHidden
-              variation="quiet"
-              required
-            />
-            <TextField
-              name="low"
-              placeholder="Low"
-              label="low"
-              labelHidden
-              variation="quiet"
-              required
-            />
-            <TextField
-              name="close"
-              placeholder="Close"
-              label="close"
-              labelHidden
-              variation="quiet"
-              required
-            />
-            <Button type="submit" variation="primary">
-              Create Note
-            </Button>
-          </Flex>
-        </View>
-        <Divider size="large" orientation="horizontal" />
-        <Heading level={4}>Current Notes</Heading>
-      <Button onClick={signOut}>Sign Out</Button>
-      */}
       </Flex>
     </View>
   );
 };
 
-export default withAuthenticator(App);
+export default App;
