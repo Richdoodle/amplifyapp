@@ -12,8 +12,8 @@
       "AmplifyAppId": "d3hg7qpm67elzk"
     },
     "categories": {
-      "auth": {
-        "amplifyapp0a078c3e": {}
+      "api": {
+        "amplifyapp": {}
       }
     }
   }

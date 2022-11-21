@@ -13,8 +13,7 @@ import {
   TableRow,
   Text,
   TextField,
-  View,
-  withAuthenticator,
+  View
 } from "@aws-amplify/ui-react";
 import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
@@ -186,13 +185,17 @@ const App = () => {
     setPortfolio(models);
   }
 
-  async function deleteExtra(notes, size){
-    while (notes.length > size){
-      notes = await deleteNote(notes[0])
+  async function deleteExtra(data, size){
+    while (data.length > size){
+      const newNotes = notes.filter((note) => note.id !== data[0].id);
+      setNotes(newNotes);
+      const modelToDelete = await DataStore.query(Note, data[0].id);
+      DataStore.delete(modelToDelete);
+      data =  await DataStore.query(Note)
     }
   }
 
-  async function deleteNote( id ) {
+  async function deleteNote({ id }) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
