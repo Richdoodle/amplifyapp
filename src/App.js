@@ -130,7 +130,7 @@ const App = () => {
       data.forEach(function(value){
         if (value.action === "BOT" || value.action === "BUY"){
           chartData.push({
-            x: new Date(value.dateTime).getTime(),
+            x: new Date(value.dateTime).setHours((new Date(value.dateTime).getHours()) - 8),
             borderColor: '#00E396',
             label: {
               borderColor: '#00E396',
@@ -146,7 +146,7 @@ const App = () => {
           },)
         } else {
           chartData.push({
-            x: new Date(value.dateTime).getTime(),
+            x: new Date(value.dateTime).setHours((new Date(value.dateTime).getHours()) - 8),
             borderColor: '#e30035',
             label: {
               borderColor: '#e30035',
