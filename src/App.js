@@ -195,12 +195,11 @@ const App = () => {
     }
   }
 
-  async function deleteNote({ id }) {
+  async function deleteNote( id ) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
     DataStore.delete(modelToDelete);
-    return await DataStore.query(Note)
   }
 
   async function deleteTrade( id ) {
