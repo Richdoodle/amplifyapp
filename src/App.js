@@ -32,7 +32,7 @@ const App = () => {
     fetchNotes();
     fetchPortfolio();
     fetchTrades();
-    updateData(size);
+    //updateData(size);
     updateTradeChartData();
     
     DataStore.query(Note).then((notes) => {
@@ -182,7 +182,7 @@ const App = () => {
 
   async function deleteExtra(size){
     const data = await DataStore.query(Note, Predicates.ALL, {
-      sort: s => s.dateTime(SortDirection.ASCENDING)
+      sort: s => s.dateTime(SortDirection.DESCENDING)
     });
 
     data.forEach(function(value){
