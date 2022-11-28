@@ -17,6 +17,7 @@ import {
 } from "@aws-amplify/ui-react";
 import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
+import { DISCARD } from "@aws-amplify/datastore";
 import ChartViewer from "./ChartViewer";
 
 const App = () => {
@@ -33,18 +34,22 @@ const App = () => {
     fetchTrades();
     updateData(size);
     updateTradeChartData();
+    
+    DataStore.query(Note).then((notes) => {
+      const today = new Date();
+      notes.forEach((element) => {
+        let noteDate = new Date(element.createdAt);
+        if (noteDate.getDate() !== today.getDate()) {
+          deleteNote(element.id);
+        }
+      })
+    })
+
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
-        DataStore.query(Note, Predicates.ALL, {
-          sort: s => s.dateTime(SortDirection.ASCENDING)
-        }).then((notes) => {
-          if (notes.length > size){
-            deleteExtra(notes, size);
-          }
-        });
-        
+        deleteExtra(size);
       }
       updateData(size);
     });
@@ -77,16 +82,6 @@ const App = () => {
         let date = new Date(element.updatedAt);
         if (date.getDate() !== today.getDate()) {
           updatePortfolio(element.id);
-        }
-      })
-    })
-
-    DataStore.query(Note).then((notes) => {
-      const today = new Date();
-      notes.forEach((element) => {
-        let noteDate = new Date(element.createdAt);
-        if (noteDate.getDate() !== today.getDate()) {
-          deleteNote(element.id);
         }
       })
     })
@@ -185,21 +180,23 @@ const App = () => {
     setPortfolio(models);
   }
 
-  async function deleteExtra(data, size){
-    while (data.length > size){
-      const newNotes = notes.filter((note) => note.id !== data[0].id);
-      setNotes(newNotes);
-      const modelToDelete = await DataStore.query(Note, data[0].id);
-      DataStore.delete(modelToDelete);
-      data =  await DataStore.query(Note)
-    }
+  async function deleteExtra(size){
+    const data = await DataStore.query(Note, Predicates.ALL, {
+      sort: s => s.dateTime(SortDirection.ASCENDING)
+    });
+
+    data.forEach(function(value){
+      if (data.indexOf(value) > size - 1){
+        deleteNote(value.id);
+      }
+    })
   }
 
   async function deleteNote( id ) {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
-    DataStore.delete(modelToDelete);
+    await DataStore.delete(modelToDelete);
   }
 
   async function deleteTrade( id ) {
