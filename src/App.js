@@ -17,7 +17,6 @@ import {
 } from "@aws-amplify/ui-react";
 import { Note, Trades, Portfolio } from './models';
 import { API, Hub, Predicates, DataStore, SortDirection } from 'aws-amplify';
-import { DISCARD } from "@aws-amplify/datastore";
 import ChartViewer from "./ChartViewer";
 
 const App = () => {
@@ -32,7 +31,7 @@ const App = () => {
     fetchNotes();
     fetchPortfolio();
     fetchTrades();
-    //updateData(size);
+    updateData(size);
     updateTradeChartData();
     
     DataStore.query(Note).then((notes) => {
