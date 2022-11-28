@@ -33,24 +33,14 @@ const App = () => {
     fetchTrades();
     updateData(size);
     updateTradeChartData();
-    
-    DataStore.query(Note).then((notes) => {
-      const today = new Date();
-      notes.forEach((element) => {
-        let noteDate = new Date(element.createdAt);
-        if (noteDate.getDate() !== today.getDate()) {
-          deleteNote(element.id);
-        }
-      })
-    })
 
     const notesSubscription = DataStore.observe(Note).subscribe(msg => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
+        updateData();
         deleteExtra(size);
       }
-      updateData(size);
     });
 
     const tradeSubscription = DataStore.observe(Trades).subscribe(msg => {
@@ -65,6 +55,16 @@ const App = () => {
       fetchPortfolio();
     })
 
+    DataStore.query(Note).then((notes) => {
+      const today = new Date();
+      notes.forEach((element) => {
+        let noteDate = new Date(element.createdAt);
+        if (noteDate.getDate() !== today.getDate()) {
+          deleteNote(element.id);
+        }
+      })
+    })
+    
     DataStore.query(Trades).then((trades) => {
       const today = new Date();
       trades.forEach((element) => {
@@ -92,11 +92,9 @@ const App = () => {
     };
   }, []);
 
-  async function updateData(size){
+  async function updateData(){
     var chartData = [];
     const data = await DataStore.query(Note, Predicates.ALL, {
-      page: 0,
-      limit: size,
       sort: s => s.dateTime(SortDirection.ASCENDING)
     });
 
@@ -195,7 +193,7 @@ const App = () => {
     const newNotes = notes.filter((note) => note.id !== id);
     setNotes(newNotes);
     const modelToDelete = await DataStore.query(Note, id);
-    await DataStore.delete(modelToDelete);
+    DataStore.delete(modelToDelete);
   }
 
   async function deleteTrade( id ) {
