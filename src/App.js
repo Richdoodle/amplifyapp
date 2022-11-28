@@ -95,11 +95,11 @@ const App = () => {
   async function updateData(){
     var chartData = [];
     const data = await DataStore.query(Note, Predicates.ALL, {
-      sort: s => s.dateTime(SortDirection.ASCENDING)
+      sort: s => s.dateTime(SortDirection.DESCENDING)
     });
 
     if (data.length > 0){
-      data.forEach(function(value){
+      data.slice(0, 20).forEach(value => {
         var y = new Date(value.dateTime).getTime();
         chartData.push({
           x: new Date(y),
@@ -109,7 +109,7 @@ const App = () => {
     } else {
       chartData = [];
     }
-    setChartData(chartData);
+    setChartData(chartData.reverse());
   }
 
   async function updateTradeChartData(){
@@ -119,7 +119,7 @@ const App = () => {
     });
 
     if (data.length > 0){
-      data.forEach(function(value){
+      data.forEach(value => {
         if (value.action === "BOT" || value.action === "BUY"){
           chartData.push({
             x: new Date(value.dateTime).setHours((new Date(value.dateTime).getHours()) - 8),
@@ -182,7 +182,7 @@ const App = () => {
       sort: s => s.dateTime(SortDirection.DESCENDING)
     });
 
-    data.forEach(function(value){
+    data.forEach(value => {
       if (data.indexOf(value) > size - 1){
         deleteNote(value.id);
       }

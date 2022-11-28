@@ -2,12 +2,38 @@ import React, { useState } from "react";
 import Chart from "react-apexcharts";
 
 export default function ApexChart(props) {
+    const minArray = [];
+    const maxArray = [];
+    var min;
+    var max;
     const series = [
         {
         name: "bars",
         data: props.bars
         }
     ];
+
+    series[0].data.forEach(v => {
+        minArray.push((v.y[2]))
+    });
+    series[0].data.forEach(v => {
+        maxArray.push((v.y[1]))
+    });
+
+    min = Math.min(... minArray)
+    max = Math.max(... maxArray)
+    var diff = max - min
+
+    const y = []
+    const stepUps = [1, 0.5, 0.25, 0.1]
+    stepUps.forEach(s => {
+        y.push(Math.round((s - (diff % s)) * 1000) / 1000 )
+    })
+    var minStepUp = stepUps.at(y.indexOf(Math.min(... y)))
+    min = Math.floor(min / minStepUp) * minStepUp
+    max = Math.ceil(max / minStepUp) * minStepUp
+
+
     const options = {
         chart: {
             type: 'candlestick',
@@ -30,6 +56,13 @@ export default function ApexChart(props) {
             }
         },
         yaxis: {
+            show: true,
+            min: function(){
+                return min
+            },
+            max: function(){
+                return max
+            },
             tooltip: {
                 enabled: true
             }
@@ -42,6 +75,16 @@ export default function ApexChart(props) {
         },
         annotations: {
             xaxis: props.xaxis
+        },
+        grid: {
+            padding: {
+                right: 20
+            },
+            xaxis: {
+                lines:{
+                    show: true
+                }
+            }
         }
     };
 
