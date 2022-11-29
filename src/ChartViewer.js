@@ -30,8 +30,8 @@ export default function ApexChart(props) {
         y.push(Math.round((s - (diff % s)) * 1000) / 1000 )
     })
     var minStepUp = stepUps.at(y.indexOf(Math.min(... y)))
-    min = Math.floor(min / minStepUp) * minStepUp
-    max = Math.ceil(max / minStepUp) * minStepUp
+    // min = Math.floor(min / minStepUp) * minStepUp
+    // max = Math.ceil(max / minStepUp) * minStepUp
 
 
     const options = {
@@ -57,11 +57,11 @@ export default function ApexChart(props) {
         },
         yaxis: {
             show: true,
-            min: function(){
-                return min
+            min: function(min){
+                return Math.floor(min / 0.1) * 0.1
             },
-            max: function(){
-                return max
+            max: function(max){
+                return Math.floor(max / 0.1) * 0.1
             },
             tooltip: {
                 enabled: true
