@@ -61,7 +61,7 @@ export default function ApexChart(props) {
                 return Math.floor(min / 0.1) * 0.1
             },
             max: function(max){
-                return Math.floor(max / 0.1) * 0.1
+                return Math.ceil(max / 0.1) * 0.1
             },
             tooltip: {
                 enabled: true
