@@ -218,13 +218,13 @@ const App = () => {
 
   return (
     <View className="App">
-      <Flex direction="column" alignItems="center" border="5px solid black" minHeight="100vh" maxHeight="100vh">
+      <Flex direction="column" alignItems="center" border="5px solid black" minHeight="100%" >
         <Heading level={3}>Trader App</Heading>
         <View width="98%" height="60vh" border="2px solid black">
           <ChartViewer bars={chartData} xaxis={tradeChartData} />
         </View>
-        <Flex as="div" direction="row" border="2px solid black" width="98%" height="25vh">
-          <View className='tableContainer'>
+        <Flex as="div" direction={{base: 'column-reverse', large: 'row'}} border="2px solid black" width="98%" height="25%">
+          <View className='tableContainer' width={{base: '100%', large: '60wv'}}>
             <Table highlightOnHover={true} variation="striped" size="small">
               <TableHead>
                 <TableRow>
@@ -248,7 +248,7 @@ const App = () => {
               </TableBody>
             </Table>
           </View>
-          <View border="2px solid black" width="40vw" height="25vh">
+          <View border="2px solid black" width={{base: '100%', large: '40wv'}} height="25vh">
             <Table 
               highlightOnHover={true}>
               <TableHead>
