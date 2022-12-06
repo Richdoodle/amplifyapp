@@ -224,7 +224,7 @@ const App = () => {
           <ChartViewer bars={chartData} xaxis={tradeChartData} />
         </View>
         <Flex as="div" direction={{base: 'column-reverse', large: 'row'}} border="2px solid black" width="98%" height="25%">
-          <View className='tableContainer' width={{base: '100%', large: '60wv'}}>
+          <View className='tableContainer' width={{base: '100%', large: '60wv'}} maxHeight="25vh">
             <Table highlightOnHover={true} variation="striped" size="small">
               <TableHead>
                 <TableRow>
