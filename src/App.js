@@ -38,8 +38,8 @@ const App = () => {
       console.log(msg.model, msg.opType, msg.element);
       if (msg.opType === 'INSERT'){
         fetchNotes();
-        updateData();
-        deleteExtra(size);
+        updateData(size);
+        //deleteExtra(size);
       }
     });
 
@@ -55,14 +55,18 @@ const App = () => {
       fetchPortfolio();
     })
 
-    DataStore.query(Note).then((notes) => {
+    DataStore.query(Note, Predicates.ALL, {
+        sort: s => s.dateTime(SortDirection.ASCENDING)
+      }).then((notes) => {
       const today = new Date();
-      notes.forEach((element) => {
-        let noteDate = new Date(element.createdAt);
-        if (noteDate.getDate() !== today.getDate()) {
-          deleteNote(element.id);
-        }
-      })
+      if (new Date(notes.at(0).createdAt).getDate() !== today.getDate()) {
+        notes.forEach((element) => {
+          let noteDate = new Date(element.createdAt);
+          if (noteDate.getDate() !== today.getDate()) {
+            deleteNote(element.id);
+          }
+        })
+      }
     })
     
     DataStore.query(Trades).then((trades) => {
@@ -92,14 +96,14 @@ const App = () => {
     };
   }, []);
 
-  async function updateData(){
+  async function updateData(size){
     var chartData = [];
     const data = await DataStore.query(Note, Predicates.ALL, {
       sort: s => s.dateTime(SortDirection.DESCENDING)
     });
 
     if (data.length > 0){
-      data.slice(0, 20).forEach(value => {
+      data.slice(0, size).forEach(value => {
         var y = new Date(value.dateTime).getTime();
         chartData.push({
           x: new Date(y),
